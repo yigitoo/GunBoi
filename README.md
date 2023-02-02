@@ -16,3 +16,4 @@ To run codes i made:
 ```bash
 $ make
 ```
+![Example Screenshot of Program.](./ss.png)
