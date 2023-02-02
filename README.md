@@ -1,3 +1,4 @@
+# PROJECT ISN'T FINISHED!!!
 # SnakeGame
 A space invaders game prepared by Ruby2D.
 

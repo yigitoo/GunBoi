@@ -1,2 +1,4 @@
 run:
-	ruby main.rb
+	ruby game.rb
+debug:
+	ruby2d console game.rb
