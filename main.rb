@@ -2,7 +2,7 @@ require 'ruby2d'
 
 set title: %(snake_game)
 set background: "black"
-set width: 500, height: 500
+set width: 750, height: 500
 
 bg_music = Music.new('./music.mp3')
 bg_music.loop = true
