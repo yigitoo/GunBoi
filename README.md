@@ -7,7 +7,8 @@ To install Ruby2D lib from Gemfile in repository
 $ bundle install
 ```
 <br>
-To run codes<br>
+To run codes
+<br>
 ```bash
 $ make
 ```
