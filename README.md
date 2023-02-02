@@ -9,6 +9,6 @@ $ bundle install
 <br>
 To run codes
 <br>
-```bash
-$ make
+```bash<br>
+$ make<br>
 ```
