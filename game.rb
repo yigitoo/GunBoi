@@ -7,9 +7,12 @@ class Integer
     MIN = -MAX - 1
 end
 =begin
- float AngleRad = Mathf.Atan2(Input.mousePosition.y - transform.position.y, Input.mousePosition.x - transform.position.x);
+Formula of rotating entity via mouse pos.
+(in Unity-C#)
+float AngleRad = Mathf.Atan2(Input.mousePosition.y - transform.position.y, Input.mousePosition.x - transform.position.x);
          float AngleDeg = (180 / Mathf.PI) * AngleRad;
          this.transform.rotation = Quaternion.Euler(0, 0, AngleDeg);
+=end
 
 class Vector2D
     attr_accessor :x, :y
@@ -17,8 +20,59 @@ class Vector2D
         @x = x
         @y = y
     end
+
+    def show
+        puts %{Vec<#{@x}, #{@y}>}
+    end
 end
-=end
+
+class ColorConfig
+    def initialize(choice, r: nil, g: nil, b: nil, a: nil, hex: nil)
+        @r = r
+        @g = g
+        @b = b
+        @a = a
+        @value = nil
+        @hex = hex
+
+        if choice == 0
+            hex(@hex)
+        elsif choice == 1
+            rgba([@r, @g, @b, @a])
+        else
+            raise "ColorConfig_IndexError: Color settings will be 0 or 1 (0 for hex, 1 for rgba)."
+        end
+    end
+
+    def rgba(rgba_list)
+        rgba_list.each do |x|
+            if x > 1 or x < 0
+                raise "RGBA_RangeError: #{x} will be in 0 <= x <= 1."
+            else
+                nil
+            end
+        end
+        @value = rgba_list
+    end
+
+    def hex(hex_value)
+        hex_range = [1,2,3,4,5,6,7,8,9,0,"a","b","c","d","e","f"]
+        hex_value.split('').each do |x|
+            if x == "#"
+                nil
+            elsif x.in?(hex_range)
+                nil
+            else
+                raise "HexValueError(Yours= #{x}): each element will be contain in this list: #{hex_range}"
+            end
+        end
+        @value = hex_value
+    end
+
+    def show
+        p @value
+    end
+end
 
 set title: "GunBoi"
 set background: "black"
@@ -30,34 +84,50 @@ bg_music.loop = true
 bg_music.volume = 30
 bg_music.play
 
+class Projectile
+    WIDTH = 6 * 3
+    HEIGHT = 6 * 3
+    SPEED = 12
 
-def gen_bg_color
-    hex_arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0].join(' ').split
-    hex_arr += ["a", "b", "c", "d", "e", "f"]
-
-    color_code = "#"
-    6.times do
-        color_code += hex_arr.shuffle.first
+    def initialize(x,y)
+        @image = Sprite.new(
+            'projectile.png',
+            x: @x,
+            y: @y,
+            width: WIDTH,
+            height: HEIGHT,
+            rotate: 180
+        )
+        @x_velocity = Math.sin(@image.rotate * Math::PI / 180) * SPEED
+        @y_velocity = -Math.cos(@image.rotate * Math::PI / 180) * SPEED
     end
 
-    return color_code
+    def move
+        @image.x += @x_velocity
+        @image.y += @y_velocity
+    end
 end
-
 class Player
-    attr_accessor :health, :ammo, :width, :height, :speed, :projectile_speed, :player_sprite
-    def initialize(health: 100, ammo: Integer::MAX, height: 20, width: 20, speed: 4)
+    attr_accessor :health, :ammo, :width, :height, :speed, :projectile_speed, :player_sprite, :gun
+    def initialize(health: 100, ammo: Integer::MAX, height: 20, width: 20, speed: 0.04)
         @ammo = ammo
         @width = width
         @height = height
         @speed = speed
 
-        @gun_x = Window.width  / 2
-        @gun_y = Window.height / 2
+        @gun_x = Window.width  / 2 + 45
+        @gun_y = Window.height / 2 + 45
         @projectile_speed = defined? projectile_speed ? projectile_speed : @speed
-
+        
+        @player = Ruby2D::Sprite.new(
+            "player_png/ayaz.png",
+            x: @gun_x - 65, y: @gun_y - 65,
+            height: 200, width: 200,
+            rotate:0
+        )
         @gun = Ruby2D::Sprite.new(
             "gun.png",
-            x: @gun_x , y: @gun_y,
+            x: @gun_x + 30 , y: @gun_y,
             height: 25, width: 100,
             rotate: 0
         )
@@ -85,20 +155,25 @@ class Player
         rel_y = @mouse_y - @gun_y
         @angle = (Math.atan2(rel_y, rel_x)) * (180/Math::PI)
         @gun.rotate = @angle
+        @player.rotate = @angle
     end
 end
 player = Player.new()
 update {
 
-    on :key_down do |event|
+    on :key_held do |event|
         if event.key == "a"
-            player.player_sprite.x -= player.speed
-        elsif event.key = "d"
-            player.player_sprite.x += player.speed
-        elsif event.key = "w"
-            player.player_sprite.y += player.speed
-        elsif event.key = "s"
-            player.player_sprite.y -= player.speed
+            player.player.x -= player.speed
+            player.gun.x -= player.speed
+        elsif event.key == "d"
+            player.player.x += player.speed
+            player.gun.x -= player.speed
+        elsif event.key == "w"
+            player.player.y -= player.speed
+            player.gun.y -= player.speed
+        elsif event.key == "s"
+            player.player.y += player.speed
+            player.gun.y += player.speed
         end
     end
 
